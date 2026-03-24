@@ -1,0 +1,8 @@
+# Optional heavy / GPU related dependencies
+# Install with: pip install -r requirements-vision.txt
+
+# InsightFace (pin a version known to work with Python 3.10/3.11; wheels for 3.12 may lag)
+# If using Python 3.12 you might need --extra-index-url or build tools.
+insightface==0.7.3
+# onnx / runtimes already in main requirements. If you want CPU only:
+# onnxruntime==1.19.0

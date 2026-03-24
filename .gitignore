@@ -1,0 +1,32 @@
+# Python caches
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+Backend/.venv/
+Backend/.venv310/
+Backend/Backend/.venv/
+
+# Local data/db artifacts
+*.db
+*.sqlite
+*.sqlite3
+
+# Node
+node_modules/
+Frontend/node_modules/
+dist/
+Frontend/dist/
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db

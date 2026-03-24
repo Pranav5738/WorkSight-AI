@@ -1,0 +1,17 @@
+[tool.black]
+line-length = 100
+target-version = ["py312"]
+exclude = "(node_modules|dist|Frontend)"
+
+[tool.isort]
+profile = "black"
+line_length = 100
+skip = ["node_modules", "dist", "Frontend"]
+
+[tool.ruff]
+line-length = 100
+exclude = ["node_modules", "dist", "Frontend"]
+
+[tool.pytest.ini_options]
+pythonpath = ["Backend"]
+addopts = "-q"

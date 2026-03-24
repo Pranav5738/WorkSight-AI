@@ -1,0 +1,8 @@
+Alembic environment for database migrations.
+Generate a revision after model changes:
+
+alembic revision --autogenerate -m "describe change"
+
+Apply migrations:
+
+alembic upgrade head

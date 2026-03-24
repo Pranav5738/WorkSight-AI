@@ -1,0 +1,39 @@
+{
+  "employees": [
+    {
+      "id": "1d0946f1-25ea-4a22-9e97-7ed03fbcfcff",
+      "employee_id": "1",
+      "full_name": "Pranav",
+      "department": "it",
+      "position": "devloper",
+      "email": "pranavshah5738@gmail.com",
+      "phone": "100",
+      "photo_url": "/uploads/files/1.jpg",
+      "status": "active",
+      "created_at": "2025-10-02T15:59:15.753949"
+    }
+  ],
+  "attendance": [],
+  "logs": [
+    {
+      "ts": "2025-10-02T15:59:15.753949",
+      "event_type": "employee.create",
+      "description": "Employee created 1",
+      "metadata": {
+        "employee_id": "1"
+      }
+    }
+  ],
+  "settings": {
+    "alert_email": "admin@example.com",
+    "updated_at": "2025-10-02T17:05:26.888493",
+    "alert_cooldown_seconds": 60,
+    "alert_bypass_levels": [
+      "high",
+      "critical"
+    ],
+    "last_alert_sent_at": "2025-10-03T15:10:22.117997",
+    "confidence_threshold": 0.9,
+    "camera_assignments": {}
+  }
+}

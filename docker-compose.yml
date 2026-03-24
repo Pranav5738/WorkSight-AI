@@ -1,0 +1,48 @@
+version: '3.9'
+
+name: cortexa-vision
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Backend/Dockerfile
+    env_file: .env
+    environment:
+      # Ensure the backend binds on all interfaces in container
+      - HOST=0.0.0.0
+      - PORT=8000
+      # Persist DB under /app/data by default; can be overridden via .env
+      - DATABASE_URL=${DATABASE_URL:-sqlite:////app/data/data.db}
+    volumes:
+      # Persist sqlite DB and uploads across restarts
+      - backend_data:/app/data
+      - backend_uploads:/app/uploads
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Frontend/Dockerfile
+      args:
+        # Build-time injection for Vite; points to backend service URL from host
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:-}
+        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY:-}
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "5173:80"
+    restart: unless-stopped
+
+volumes:
+  backend_data:
+  backend_uploads:

@@ -1,0 +1,18 @@
+{
+  "name": "cortexa-vision-runner",
+  "version": "1.0.0",
+  "description": "A script runner for the Cortexa Vision project.",
+  "main": "index.js",
+  "scripts": {
+    "dev:frontend": "npm run dev --prefix Frontend",
+    "dev:backend": "python -m uvicorn main:app --reload --port 8000 --app-dir Backend",
+    "dev:combined": "node scripts/dev.js",
+    "dev": "node scripts/dev.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
