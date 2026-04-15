@@ -5,8 +5,8 @@ name: cortexa-vision
 services:
   backend:
     build:
-      context: .
-      dockerfile: Backend/Dockerfile
+      context: ./Backend
+      dockerfile: Dockerfile
     env_file: .env
     environment:
       # Ensure the backend binds on all interfaces in container
