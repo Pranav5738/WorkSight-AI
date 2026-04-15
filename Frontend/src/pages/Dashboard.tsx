@@ -3,6 +3,11 @@ import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { Users, Activity, LogIn } from "lucide-react";
 import { isBackendConfigured, getAccessToken } from "../lib/api/http";
+import { PageHeader } from "../components/ui/PageHeader";
+import { StatCard } from "../components/ui/StatCard";
+import { Card, CardTitle } from "../components/ui/Card";
+import { Button } from "../components/ui/Button";
+import { EmptyState, LoadingState } from "../components/ui/DataStates";
 
 // Lightweight HTTP helper for backend endpoints (avoids importing full API modules)
 async function backendJson<T>(path: string): Promise<T | null> {
@@ -43,12 +48,14 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
   const [userCount, setUserCount] = useState(0);
   const [attendanceCount, setAttendanceCount] = useState(0);
   const [recentLogs, setRecentLogs] = useState<Log[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchDashboardData();
   }, []);
 
   async function fetchDashboardData() {
+    setLoading(true);
     const backend = isBackendConfigured();
     if (backend) {
       // Parallel fetch from backend API
@@ -70,6 +77,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         description: l.description || l.message || '',
         created_at: l.ts || l.created_at || new Date().toISOString()
       })));
+      setLoading(false);
       return;
     }
 
@@ -87,6 +95,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
     setUserCount(users || 0);
     setAttendanceCount(attendance || 0);
     setRecentLogs(logsRes.data || []);
+    setLoading(false);
   }
 
   const metrics: (Metric & { target?: string })[] = [
@@ -114,90 +123,69 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
   ];
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-        Dashboard
-      </h1>
+    <div className="space-y-6">
+      <PageHeader
+        title="Dashboard"
+        description="A unified operations view for attendance, users, and system health."
+        actions={
+          <Button variant="secondary" onClick={fetchDashboardData}>Refresh</Button>
+        }
+      />
 
-      {/* Metrics grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {metrics.map((metric, index) => {
-          const clickable = !!(onNavigate && metric.target);
-          return (
-            <button
-              key={index}
-              type={clickable ? "button" : undefined}
-              disabled={!clickable}
-              onClick={() => clickable && onNavigate!(metric.target!)}
-              className={`text-left group relative bg-white dark:bg-slate-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-slate-700 transition ${
-                clickable
-                  ? 'hover:shadow-xl hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500'
-                  : ''
-              } ${clickable ? 'cursor-pointer' : 'cursor-default'}`}
-            >
-              {clickable && (
-                <span className="absolute top-2 right-2 text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-slate-700 text-blue-700 dark:text-blue-300 opacity-0 group-hover:opacity-100 transition">
-                  View
-                </span>
-              )}
-              <div className="flex items-center space-x-4">
-                <div className={`${metric.color} p-3 rounded-lg text-white shadow-md`}>
-                  {metric.icon}
-                </div>
-                <div>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">
-                    {metric.title}
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {metric.value}
-                  </p>
-                </div>
-              </div>
-            </button>
-          );
-        })}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {metrics.map((metric, index) => (
+          <StatCard
+            key={index}
+            title={metric.title}
+            value={metric.value}
+            icon={metric.icon}
+            tone={index === 0 ? 'info' : index === 1 ? 'success' : 'primary'}
+            trendLabel="Live"
+            onClick={metric.target && onNavigate ? () => onNavigate(metric.target!) : undefined}
+          />
+        ))}
       </div>
 
-      {/* Recent Activity */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-slate-700">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-          Recent Activity
-        </h2>
-        <div className="space-y-3">
-          {recentLogs.length === 0 ? (
-            <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
-              No recent activity
-            </p>
-          ) : (
-            recentLogs.map((log, index) => (
+      <Card>
+        <CardTitle
+          title="Recent Activity"
+          subtitle="Latest platform events from authentication, attendance, and security pipelines."
+          action={<Button variant="ghost" size="sm" onClick={() => onNavigate?.('logs')}>Open Logs</Button>}
+        />
+        {loading ? (
+          <LoadingState label="Loading dashboard activity..." />
+        ) : recentLogs.length === 0 ? (
+          <EmptyState
+            title="No recent activity"
+            subtitle="Activity will appear here as users interact with the system."
+          />
+        ) : (
+          <div className="space-y-2">
+            {recentLogs.map((log, index) => (
               <div
                 key={log.id ?? `${log.created_at}-${index}`}
-                className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-slate-700 rounded-lg"
+                className="flex items-start gap-3 rounded-xl border border-slate-200/70 bg-slate-50/70 p-3 dark:border-slate-700 dark:bg-slate-800/70"
               >
                 <div
-                  className={`w-2 h-2 rounded-full ${
+                  className={`mt-1 h-2.5 w-2.5 rounded-full ${
                     log.event_type === "security"
-                      ? "bg-red-500"
+                      ? "bg-rose-500"
                       : log.event_type === "attendance"
-                      ? "bg-green-500"
+                      ? "bg-emerald-500"
                       : log.event_type === "auth"
-                      ? "bg-blue-500"
-                      : "bg-gray-500"
+                      ? "bg-sky-500"
+                      : "bg-slate-400"
                   }`}
                 />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">
-                    {log.description}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {new Date(log.created_at).toLocaleString()}
-                  </p>
+                  <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{log.description}</p>
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{new Date(log.created_at).toLocaleString()}</p>
                 </div>
               </div>
-            ))
-          )}
-        </div>
-      </div>
+            ))}
+          </div>
+        )}
+      </Card>
     </div>
   );
 }

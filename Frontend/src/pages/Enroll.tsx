@@ -2,11 +2,14 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { CameraView } from '../components/CameraView';
 import { supabase } from '../lib/supabase';
 import type { Employee, SystemLog } from '../types/database';
-import { Check, Loader2, UserPlus, Upload, FileSpreadsheet, RotateCcw } from 'lucide-react';
+import { Check, Loader2, Upload, FileSpreadsheet, RotateCcw } from 'lucide-react';
 import { isBackendConfigured } from '../lib/api/http';
 import { createEmployee, bulkImportEmployees, getEmployee, encodeEmployee, EmployeeDTO } from '../lib/api/employees';
 import { Toast } from '../components/Toast';
 import { logEvent } from '../lib/api/logs';
+import { PageHeader } from '../components/ui/PageHeader';
+import { Card, CardTitle } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
 
 interface NewEmployeeForm {
   full_name: string;
@@ -353,43 +356,45 @@ export function EnrollPage({ onCreated }: { onCreated?: (employeeId: string) => 
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2"><UserPlus className="w-6 h-6" /> Enroll Employee</h1>
+    <div className="space-y-6">
+      <div className="flex items-start justify-between gap-3">
+        <PageHeader title="Enroll Employee" description="Create single records with live capture or import employees in bulk from CSV." />
         <div className="flex items-center gap-2 text-sm">
-          <button onClick={()=>setMode('single')} className={`px-3 py-1 rounded-lg font-medium ${mode==='single' ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-300'}`}>Single</button>
-          <button onClick={()=>setMode('bulk')} className={`px-3 py-1 rounded-lg font-medium ${mode==='bulk' ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-300'}`}>Bulk Import</button>
+          <Button onClick={()=>setMode('single')} variant={mode==='single' ? 'chip-active' : 'chip'} size="sm">Single</Button>
+          <Button onClick={()=>setMode('bulk')} variant={mode==='bulk' ? 'chip-active' : 'chip'} size="sm">Bulk Import</Button>
         </div>
         <div className="flex gap-2">
           {mode==='single' && (<>
-            <button
+            <Button
               onClick={capturePhoto}
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
+              variant="primary"
               disabled={status === 'capturing'}
             >
               {status === 'capturing' ? 'Capturing...' : 'Capture Photo'}
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={triggerPhotoUpload}
               type="button"
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
+              variant="secondary"
+              className="flex items-center gap-2"
             >
               <Upload className="w-4 h-4" /> Upload Photo
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={saveEmployee}
               disabled={!canSave}
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-green-600 hover:bg-green-700 text-white disabled:opacity-50 flex items-center gap-2"
+              variant="primary"
+              className="flex items-center gap-2"
             >
               {status === 'saving' && <Loader2 className="w-4 h-4 animate-spin" />}
               {status === 'saved' ? <><Check className="w-4 h-4" /> Saved</> : 'Save'}
-            </button>
+            </Button>
           </>)}
           {mode==='bulk' && (
             <>
-              <button onClick={triggerBulkFile} className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"><FileSpreadsheet className="w-4 h-4" /> Select CSV</button>
-              <button onClick={performBulkImport} disabled={bulkStatus!=='ready'} className="px-4 py-2 rounded-lg text-sm font-medium bg-green-600 hover:bg-green-700 text-white disabled:opacity-50">Import</button>
-              <button onClick={resetBulk} className="px-3 py-2 rounded-lg text-sm font-medium bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-300 flex items-center gap-1"><RotateCcw className="w-4 h-4" />Reset</button>
+              <Button onClick={triggerBulkFile} variant="secondary" className="flex items-center gap-2"><FileSpreadsheet className="w-4 h-4" /> Select CSV</Button>
+              <Button onClick={performBulkImport} disabled={bulkStatus!=='ready'} variant="primary">Import</Button>
+              <Button onClick={resetBulk} variant="secondary" className="flex items-center gap-1"><RotateCcw className="w-4 h-4" />Reset</Button>
             </>
           )}
         </div>
@@ -433,8 +438,8 @@ export function EnrollPage({ onCreated }: { onCreated?: (employeeId: string) => 
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-slate-700 space-y-4">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Employee Info</h2>
+          <Card className="space-y-4">
+            <CardTitle title="Employee Info" subtitle="Validate core identity fields and review encoding status." />
             {encodingTrack && (
               <div className="mb-2 p-3 rounded-lg border text-xs flex flex-col gap-2 bg-gray-50 dark:bg-slate-700/40 border-gray-200 dark:border-slate-600">
                 <div className="flex items-center justify-between">
@@ -450,9 +455,9 @@ export function EnrollPage({ onCreated }: { onCreated?: (employeeId: string) => 
                 {encodingTrack.error && <p className="text-red-600 dark:text-red-400">{encodingTrack.error}</p>}
                 <div className="flex items-center gap-2 flex-wrap">
                   {['pending','encoding'].includes(encodingTrack.status) && <span className="text-gray-500 dark:text-gray-300">Polling...</span>}
-                  {encodingTrack.status === 'failed' && <button onClick={retryEncoding} className="px-2 py-1 text-[11px] rounded bg-blue-600 text-white">Retry</button>}
-                  {encodingTrack.status === 'ready' && <button onClick={retryEncoding} className="px-2 py-1 text-[11px] rounded bg-indigo-600 text-white">Re-encode</button>}
-                  <button onClick={cancelEncodingTracking} className="px-2 py-1 text-[11px] rounded bg-gray-300 dark:bg-slate-600 text-gray-800 dark:text-gray-100">Dismiss</button>
+                  {encodingTrack.status === 'failed' && <Button onClick={retryEncoding} size="sm">Retry</Button>}
+                  {encodingTrack.status === 'ready' && <Button onClick={retryEncoding} variant="secondary" size="sm">Re-encode</Button>}
+                  <Button onClick={cancelEncodingTracking} variant="ghost" size="sm">Dismiss</Button>
                   <span className="text-[10px] text-gray-400">Checks: {encodingTrack.attempts}</span>
                 </div>
               </div>
@@ -501,40 +506,41 @@ export function EnrollPage({ onCreated }: { onCreated?: (employeeId: string) => 
             {errors.photo_data && <p className="text-xs text-red-600 dark:text-red-400">{errors.photo_data}</p>}
             <p className="text-xs text-gray-500 dark:text-gray-400">Note: For production, upload the image to Supabase Storage and store the public URL instead of embedding base64.</p>
             <div className="flex gap-2 pt-2">
-              <button
+              <Button
                 onClick={saveEmployee}
                 disabled={!canSave}
-                className="px-4 py-2 rounded-lg text-sm font-medium bg-green-600 hover:bg-green-700 text-white disabled:opacity-50 flex items-center gap-2"
+                variant="primary"
+                className="flex items-center gap-2"
               >
                 {status === 'saving' && <Loader2 className="w-4 h-4 animate-spin" />}
                 {status === 'saved' ? 'Saved' : 'Save Employee'}
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 onClick={() => { setForm({ full_name: '', employee_id: '', department: '', position: '', email: '', phone: '' }); setCaptured(null); setCaptures([]); setIdExists(null); setError(null); }}
-                className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-300 dark:bg-slate-600 text-gray-800 dark:text-gray-200"
-              >Reset</button>
+                variant="secondary"
+              >Reset</Button>
             </div>
-          </div>
+          </Card>
         </div>
       )}
 
       {mode==='bulk' && (
         <div className="space-y-6">
-          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-slate-700">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Bulk Import (CSV)</h2>
+          <Card>
+            <CardTitle title="Bulk Import (CSV)" subtitle="Use a CSV with employee profile columns." />
             <p className="text-xs text-gray-600 dark:text-gray-400 mb-4">Format: <code className="font-mono">employee_id,full_name,department,position,email,phone</code>. Header row optional.</p>
             <input ref={bulkFileInputRef} type="file" accept=".csv,text/csv" className="hidden" onChange={handleBulkFile} />
             <div className="flex flex-wrap gap-3 mb-4">
-              <button onClick={triggerBulkFile} className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white">Choose File</button>
-              <button onClick={performBulkImport} disabled={bulkStatus!=='ready'} className="px-4 py-2 rounded-lg text-sm font-medium bg-green-600 hover:bg-green-700 text-white disabled:opacity-50">Import</button>
-              <button onClick={resetBulk} className="px-3 py-2 rounded-lg text-sm font-medium bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-300">Reset</button>
-              <button onClick={() => {
+              <Button onClick={triggerBulkFile} variant="secondary">Choose File</Button>
+              <Button onClick={performBulkImport} disabled={bulkStatus!=='ready'} variant="primary">Import</Button>
+              <Button onClick={resetBulk} variant="secondary">Reset</Button>
+              <Button onClick={() => {
                 const template = 'employee_id,full_name,department,position,email,phone\nE100,Jane Doe,Engineering,Engineer,jane@example.com,555-1111';
                 const blob = new Blob([template], { type: 'text/csv' });
                 const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download='employees_template.csv'; a.click(); URL.revokeObjectURL(url);
                 setToast({ message: 'Template downloaded', type: 'success' });
-              }} className="px-4 py-2 rounded-lg text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white">Template</button>
+              }} variant="ghost">Template</Button>
             </div>
             {bulkMessage && <p className={`text-sm ${bulkStatus==='failed' ? 'text-red-600 dark:text-red-400' : bulkStatus==='done' ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}`}>{bulkMessage}</p>}
             {bulkEmployees.length>0 && (
@@ -568,7 +574,7 @@ export function EnrollPage({ onCreated }: { onCreated?: (employeeId: string) => 
                 </table>
               </div>
             )}
-          </div>
+          </Card>
         </div>
       )}
       {toast && <Toast message={toast.message} type={toast.type} onClose={()=>setToast(null)} duration={3000} />}

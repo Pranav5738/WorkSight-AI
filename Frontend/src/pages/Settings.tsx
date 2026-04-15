@@ -4,6 +4,9 @@ import { fetchEmailSettings, updateEmailSettings, updateSettings, sendTestAlert,
 import { getMonitoringStatus, startMonitoring, stopMonitoring, type MonitoringStatus } from '../lib/api/monitoring';
 import { isBackendConfigured } from '../lib/api/http';
 import { Toast } from '../components/Toast';
+import { PageHeader } from '../components/ui/PageHeader';
+import { Card, CardTitle } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
 
 export function Settings() {
   const { theme, toggleTheme } = useTheme();
@@ -208,15 +211,12 @@ export function Settings() {
   };
 
   return (
-    <div className="p-6 space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Settings</h1>
-        <p className="text-gray-600 dark:text-gray-400 text-sm">Customize your application preferences.</p>
-      </div>
+    <div className="space-y-8">
+      <PageHeader title="Settings" description="Customize recognition, notifications, camera routing, and monitoring behavior." />
 
       <div className="grid grid-cols-1 gap-6 max-w-3xl">
-        <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Appearance</h2>
+        <Card>
+          <CardTitle title="Appearance" subtitle="Visual mode and theme preferences." />
           <div className="flex items-center justify-between">
             <div>
               <p className="font-medium text-gray-800 dark:text-gray-200">Theme</p>
@@ -233,26 +233,25 @@ export function Settings() {
           <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
             Active Theme: <span className="font-semibold text-gray-900 dark:text-white capitalize">{theme}</span>
           </div>
-        </div>
+        </Card>
         {backend && (
-          <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Employee Work Activity Monitoring</h2>
+          <Card>
+            <CardTitle title="Employee Work Activity Monitoring" subtitle="Runtime controls for monitor service and alert sampling." />
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Detects idle/away states from the camera and alerts a manager when thresholds are exceeded.</p>
             <div className="flex items-center gap-3 mb-3">
-              <button
-                className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50"
+              <Button
                 disabled={monLoading || monStatus?.running}
                 onClick={async () => { setMonLoading(true); await startMonitoring().catch(()=>{}); const s=await getMonitoringStatus().catch(()=>null); setMonStatus(s); setMonLoading(false); }}
-              >Start</button>
-              <button
-                className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 disabled:opacity-50"
+              >Start</Button>
+              <Button
+                variant="destructive"
                 disabled={monLoading || !monStatus?.running}
                 onClick={async () => { setMonLoading(true); await stopMonitoring().catch(()=>{}); const s=await getMonitoringStatus().catch(()=>null); setMonStatus(s); setMonLoading(false); }}
-              >Stop</button>
-              <button
-                className="px-3 py-2 rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+              >Stop</Button>
+              <Button
+                variant="secondary"
                 onClick={async () => { setMonLoading(true); const s=await getMonitoringStatus().catch(()=>null); setMonStatus(s); setMonLoading(false); }}
-              >Refresh</button>
+              >Refresh</Button>
               <span className="text-xs text-gray-600 dark:text-gray-400">{monStatus?.enabled ? (monStatus.running ? 'Running' : 'Stopped') : 'Disabled by server'}</span>
             </div>
             <div className="text-xs text-gray-600 dark:text-gray-400">
@@ -265,7 +264,7 @@ export function Settings() {
                 )) : <li className="italic">None</li>}
               </ul>
             </div>
-          </div>
+          </Card>
         )}
         <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recognition Preferences</h2>
@@ -289,8 +288,7 @@ export function Settings() {
               {/* SMS alerts removed */}
             </div>
             <div>
-              <button
-                type="button"
+              <Button
                 onClick={async () => {
                   const camera_assignments: Record<string,string> = {};
                   if (recogCamera) camera_assignments.recognition = recogCamera;
@@ -306,10 +304,10 @@ export function Settings() {
                     setError('Failed to save preferences');
                   }
                 }}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-purple-600 hover:bg-purple-700"
+                variant="primary"
               >
                 Save Preferences
-              </button>
+              </Button>
             </div>
             <div className="pt-2 border-t border-dashed border-gray-200 dark:border-slate-700" />
             <div>
@@ -332,8 +330,9 @@ export function Settings() {
                 {/* Intruder Monitor Camera removed */}
               </div>
               <div className="mt-3 flex items-center gap-3">
-                <button
-                  type="button"
+                <Button
+                  variant="secondary"
+                  size="sm"
                   onClick={() => {
                     // force re-enumeration
                     if (typeof navigator !== 'undefined' && navigator.mediaDevices?.enumerateDevices) {
@@ -349,11 +348,10 @@ export function Settings() {
                       });
                     }
                   }}
-                  className="px-3 py-1.5 rounded-md text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
                   disabled={enumeratingCams}
                 >
                   {enumeratingCams ? 'Scanning…' : 'Re-scan Cameras'}
-                </button>
+                </Button>
                 <span className="text-[11px] text-gray-500 dark:text-gray-400">
                   {cameraDevices.length ? `${cameraDevices.length} camera${cameraDevices.length>1?'s':''} detected` : 'No cameras detected'}
                 </span>
@@ -391,13 +389,14 @@ export function Settings() {
               </div>
               {error && <div className="text-xs text-red-600 dark:text-red-400">{error}</div>}
               <div className="flex items-center gap-3">
-                <button
+                <Button
                   onClick={handleSave}
                   disabled={saving || loadingEmail || email.trim() === savedEmail}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors ${saving ? 'bg-blue-400' : (email.trim() === savedEmail ? 'bg-gray-400 dark:bg-slate-600 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700')}`}
+                  variant="primary"
+                  className={email.trim() === savedEmail ? 'opacity-60' : ''}
                 >
                   {saving ? 'Saving...' : 'Save'}
-                </button>
+                </Button>
                 {loadingEmail && <span className="text-xs text-gray-500 dark:text-gray-400">Loading…</span>}
               </div>
               <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
@@ -426,14 +425,15 @@ export function Settings() {
                       {allLevels.map(lvl => {
                         const active = bypassLevels.includes(lvl);
                         return (
-                          <button
+                          <Button
                             key={lvl}
-                            type="button"
                             onClick={() => toggleBypass(lvl)}
-                            className={`px-2.5 py-1 rounded-full text-[11px] font-medium border transition-colors ${active ? 'bg-blue-600 text-white border-blue-600' : 'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-slate-600 hover:bg-gray-200 dark:hover:bg-slate-600'}`}
+                            variant={active ? 'chip-active' : 'chip'}
+                            size="sm"
+                            className="rounded-full text-[11px]"
                           >
                             {lvl}
-                          </button>
+                          </Button>
                         );
                       })}
                     </div>
@@ -441,36 +441,31 @@ export function Settings() {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <button
-                    type="button"
+                  <Button
                     onClick={saveAdvanced}
-                    className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={saving}
                   >
                     Save Alert Rules
-                  </button>
-                  <button
-                    type="button"
+                  </Button>
+                  <Button
+                    variant="secondary"
                     onClick={handleTest}
-                    className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700"
                   >
                     Send Test Email
-                  </button>
-                  <button
-                    type="button"
+                  </Button>
+                  <Button
+                    variant="ghost"
                     onClick={handleReset}
-                    className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-gray-600 hover:bg-gray-700"
                   >
                     Reset Defaults
-                  </button>
-                  <button
-                    type="button"
+                  </Button>
+                  <Button
+                    variant="secondary"
                     onClick={refreshStatus}
-                    className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-sky-600 hover:bg-sky-700 disabled:opacity-50"
                     disabled={statusRefreshing}
                   >
                     {statusRefreshing ? 'Refreshing...' : 'Refresh Status'}
-                  </button>
+                  </Button>
                 </div>
                 <div className="text-[11px] text-gray-500 dark:text-gray-400 flex flex-wrap items-center gap-4 pt-2">
                   <span>Cooldown: <strong>{cooldown ?? '—'}s</strong></span>

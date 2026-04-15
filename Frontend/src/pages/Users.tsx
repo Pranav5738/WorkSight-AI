@@ -4,6 +4,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { Toast } from '../components/Toast';
 import { Search, UserPlus, Edit2, Trash2, Loader2, Filter } from 'lucide-react';
 import { EnrollPage } from './Enroll';
+import { PageHeader } from '../components/ui/PageHeader';
+import { Card, CardTitle } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
 
 // Lightweight inline edit modal (simple & local state)
 interface EditModalProps {
@@ -186,21 +189,22 @@ export function UsersPage() {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">Users</h1>
-          <p className="text-gray-600 dark:text-gray-400 text-sm">Manage enrolled personnel in the system.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button onClick={() => setShowEnroll(v => !v)} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium">
-            <UserPlus className="w-4 h-4" /> {showEnroll ? 'Close Enroll' : 'Add New User'}
-          </button>
-          <button onClick={exportCSV} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-200 text-sm font-medium">Export CSV</button>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Users"
+        description="Manage enrolled personnel, status, profile edits, and face-encoding actions."
+        actions={
+          <>
+            <Button variant="secondary" onClick={exportCSV}>Export CSV</Button>
+            <Button onClick={() => setShowEnroll(v => !v)} leadingIcon={<UserPlus className="w-4 h-4" />}>
+              {showEnroll ? 'Close Enroll' : 'Add New User'}
+            </Button>
+          </>
+        }
+      />
 
-      <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-4 shadow-sm">
+      <Card>
+        <CardTitle title="User Directory" subtitle="Search, filter, and maintain operational user data." />
         <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
           <div className="relative flex-1">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -262,16 +266,18 @@ export function UsersPage() {
                   </td>
                   <td className="py-2 px-3 text-gray-600 dark:text-gray-300">{emp.department || <span className="italic text-gray-400">—</span>}</td>
                   <td className="py-2 px-3">
-                    <button
+                    <Button
                       onClick={() => {
                         const next = emp.status === 'active' ? 'inactive' : 'active';
                         patchEmployee({ id: emp.id, employee_id: emp.employee_id, status: next });
                         setToast({ message: `User ${next === 'active' ? 'activated' : 'deactivated'}`, type: 'success' });
                       }}
-                      className={`px-2 py-0.5 rounded-full text-[11px] font-medium transition-colors ${emp.status === 'active' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' : 'bg-gray-300 text-gray-700 dark:bg-slate-600 dark:text-gray-200 hover:bg-gray-400'}`}
+                      variant={emp.status === 'active' ? 'chip-active' : 'chip'}
+                      size="sm"
+                      className="h-7 px-2 rounded-full text-[11px]"
                     >
                       {emp.status || 'active'}
-                    </button>
+                    </Button>
                   </td>
                   <td className="py-2 px-3 text-xs">
                     {emp.encoding_status ? (
@@ -284,32 +290,34 @@ export function UsersPage() {
                           'bg-gray-200 text-gray-700 dark:bg-slate-600 dark:text-gray-300'
                         }`}>{emp.encoding_status}</span>
                         {emp.encoding_status !== 'ready' && emp.encoding_status !== 'encoding' && emp.encoding_status !== 'no-photo' && (
-                          <button
+                          <Button
                             title="Retry encode"
                             onClick={async ()=>{ const r = await encodeEmployee(emp.employee_id); if(r){ setToast({ message: 'Encoding queued', type: 'success' }); setTimeout(loadEmployees, 800);} }}
-                            className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-                          >↻</button>
+                            variant="icon"
+                            className="h-6 w-6 border-none"
+                          >↻</Button>
                         )}
                         {emp.encoding_status === 'ready' && (
-                          <button
+                          <Button
                             title="Re-encode"
                             onClick={async ()=>{ const r = await encodeEmployee(emp.employee_id); if(r){ setToast({ message: 'Re-encode queued', type: 'success' }); setTimeout(loadEmployees, 800);} }}
-                            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                          >⟳</button>
+                            variant="icon"
+                            className="h-6 w-6 border-none"
+                          >⟳</Button>
                         )}
                       </div>
                     ) : <span className="text-gray-400 italic">—</span>}
                   </td>
                   <td className="py-2 px-3 flex items-center gap-2">
-                    <button onClick={() => setEditing(emp)} className="p-1.5 rounded hover:bg-blue-50 dark:hover:bg-slate-600 text-blue-600" title="Edit"><Edit2 className="w-4 h-4" /></button>
-                    <button onClick={() => setDeleting(emp)} className="p-1.5 rounded hover:bg-red-50 dark:hover:bg-slate-600 text-red-600" title="Delete"><Trash2 className="w-4 h-4" /></button>
+                    <Button variant="icon" onClick={() => setEditing(emp)} className="text-blue-600" title="Edit user" aria-label="Edit user"><Edit2 className="w-4 h-4" /></Button>
+                    <Button variant="icon" onClick={() => setDeleting(emp)} className="text-red-600" title="Delete user" aria-label="Delete user"><Trash2 className="w-4 h-4" /></Button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
 
       {showEnroll && (
         <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-4 shadow-sm">
@@ -320,9 +328,9 @@ export function UsersPage() {
       <div className="flex items-center justify-between gap-4 flex-wrap text-xs text-gray-600 dark:text-gray-400">
         <div>Showing {paginated.length} of {filtered.length} users</div>
         <div className="flex items-center gap-2">
-          <button disabled={page<=1} onClick={()=>setPage(p=>Math.max(1,p-1))} className="px-2 py-1 rounded border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 disabled:opacity-40">Prev</button>
+          <Button variant="secondary" size="sm" disabled={page<=1} onClick={()=>setPage(p=>Math.max(1,p-1))}>Prev</Button>
           <span>Page {page} / {totalPages}</span>
-          <button disabled={page>=totalPages} onClick={()=>setPage(p=>Math.min(totalPages,p+1))} className="px-2 py-1 rounded border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 disabled:opacity-40">Next</button>
+          <Button variant="secondary" size="sm" disabled={page>=totalPages} onClick={()=>setPage(p=>Math.min(totalPages,p+1))}>Next</Button>
         </div>
       </div>
 

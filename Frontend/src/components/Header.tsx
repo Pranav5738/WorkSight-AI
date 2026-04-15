@@ -1,13 +1,11 @@
 import { Moon, Sun, LogOut, User, CameraOff, Camera } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
-import { isBackendConfigured } from '../lib/api/http';
 import { useCameraAccess } from '../contexts/CameraAccessContext';
 
 export function Header() {
   const { theme, toggleTheme } = useTheme();
   const { username, logout } = useAuth();
-  const backend = isBackendConfigured();
   const { enabled: camEnabled, toggle: toggleCam } = useCameraAccess();
 
   return (
@@ -20,7 +18,6 @@ export function Header() {
           <div>
             <h1 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
               CONTEXA VISION
-              <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium tracking-wide ${backend ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'}`}>{backend ? 'BACKEND' : 'SUPABASE'}</span>
             </h1>
             <p className="text-xs text-gray-500 dark:text-gray-400">Secure Attendance & Threat Monitoring</p>
           </div>

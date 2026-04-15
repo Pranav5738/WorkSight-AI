@@ -1,9 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Activity, Filter, Download } from 'lucide-react';
+import { Filter, Download } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { SystemLog } from '../types/database';
 import { isBackendConfigured } from '../lib/api/http';
 import { fetchLogs } from '../lib/api/logs';
+import { PageHeader } from '../components/ui/PageHeader';
+import { Card, CardTitle } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { SegmentedControl } from '../components/ui/SegmentedControl';
+import { EmptyState, LoadingState } from '../components/ui/DataStates';
 
 type LogFilter = 'all' | 'auth' | 'attendance' | 'security' | 'system';
 
@@ -83,60 +88,47 @@ export function SystemLogs() {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">System Activity Logs</h1>
-          <p className="text-gray-600 dark:text-gray-400">Monitor all system events and activities</p>
-        </div>
-        <button
-          onClick={exportLogs}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-        >
-          <Download className="w-4 h-4" />
-          Export Logs
-        </button>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="System Activity Logs"
+        description="Audit trail for authentication, attendance, security, and system operations."
+        actions={
+          <Button onClick={exportLogs} leadingIcon={<Download className="w-4 h-4" />}>
+            Export Logs
+          </Button>
+        }
+      />
 
-      <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-slate-700">
-        <div className="flex items-center justify-between mb-6">
+      <Card>
+        <CardTitle title="Logs" subtitle="Use filters to isolate event streams and export scoped results." />
+        <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Filter className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Filter by type:</span>
           </div>
-          <div className="flex gap-2">
-            {(['all', 'auth', 'attendance', 'security', 'system'] as LogFilter[]).map((f) => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  filter === f
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
-                }`}
-              >
-                {f.charAt(0).toUpperCase() + f.slice(1)}
-              </button>
-            ))}
-          </div>
+          <SegmentedControl
+            items={([
+              'all',
+              'auth',
+              'attendance',
+              'security',
+              'system'
+            ] as LogFilter[]).map((f) => ({ value: f, label: f.charAt(0).toUpperCase() + f.slice(1) }))}
+            value={filter}
+            onChange={(value) => setFilter(value as LogFilter)}
+          />
         </div>
 
         <div className="space-y-3">
           {loading ? (
-            <div className="text-center py-12">
-              <Activity className="w-8 h-8 mx-auto text-gray-400 animate-pulse mb-3" />
-              <p className="text-sm text-gray-500 dark:text-gray-400">Loading logs...</p>
-            </div>
+            <LoadingState label="Loading logs..." />
           ) : logs.length === 0 ? (
-            <div className="text-center py-12">
-              <Activity className="w-8 h-8 mx-auto text-gray-400 mb-3" />
-              <p className="text-sm text-gray-500 dark:text-gray-400">No logs found</p>
-            </div>
+            <EmptyState title="No logs found" subtitle="Try another filter or check backend connectivity." />
           ) : (
             logs.map((log) => (
               <div
                 key={log.id}
-                className="flex items-start gap-4 p-4 bg-gray-50 dark:bg-slate-700 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors"
+                className="flex items-start gap-4 rounded-xl border border-gray-200 bg-gray-50 p-4 transition-colors hover:bg-gray-100 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
               >
                 <span className="text-2xl">{getEventIcon(log.event_type)}</span>
                 <div className="flex-1">
@@ -172,7 +164,7 @@ export function SystemLogs() {
             </p>
           </div>
         )}
-      </div>
+      </Card>
     </div>
   );
 }

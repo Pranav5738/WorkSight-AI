@@ -4,6 +4,7 @@
   "description": "A script runner for the Cortexa Vision project.",
   "main": "index.js",
   "scripts": {
+    "start": "node scripts/dev.js",
     "dev:frontend": "npm run dev --prefix Frontend",
     "dev:backend": "python -m uvicorn main:app --reload --port 8000 --app-dir Backend",
     "dev:combined": "node scripts/dev.js",

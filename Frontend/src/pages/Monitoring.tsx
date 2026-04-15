@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
 import { getMonitoringStatus, startMonitoring, stopMonitoring, startMonitoringDemo, type MonitoringStatus } from '../lib/api/monitoring';
 import { CameraView } from '../components/CameraView';
+import { PageHeader } from '../components/ui/PageHeader';
+import { Card, CardTitle } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { EmptyState, LoadingState } from '../components/ui/DataStates';
 
 export default function MonitoringPage() {
   const [status, setStatus] = useState<MonitoringStatus | null>(null);
@@ -34,48 +38,48 @@ export default function MonitoringPage() {
   }, [autoDemo]);
 
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Monitoring</h1>
-        <p className="text-gray-600 dark:text-gray-400 text-sm">Real-time employee work activity monitoring and alerts.</p>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Monitoring"
+        description="Real-time activity monitoring, live service controls, and alert stream for operations."
+        actions={<Button variant="secondary" onClick={async () => { setLoading(true); const s = await getMonitoringStatus().catch(() => null); setStatus(s); setLoading(false); }}>Refresh</Button>}
+      />
 
-      <div className="grid grid-cols-1 gap-6 max-w-5xl">
-        <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Camera Preview (Client-side)</h2>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">This preview runs in your browser for demo purposes and does not stream to the server. Use Start to run backend monitoring or Start Demo to loop local images.</p>
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-12">
+        <Card className="xl:col-span-7">
+          <CardTitle title="Camera Preview" subtitle="Client-side module for calibration and quick frame checks before service start." />
           <CameraView className="aspect-video" autoStart={false} />
-        </div>
-        <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-6 shadow-sm">
+        </Card>
+
+        <Card className="xl:col-span-5">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Service</h2>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Start or stop the background monitoring loop</p>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Service Controls</h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Start, stop, demo-run, and inspect runtime state.</p>
             </div>
             <div className="flex items-center gap-3">
               <label className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 mr-2">
                 <input type="checkbox" checked={autoDemo} onChange={e => { setAutoDemo(e.target.checked); try { window.localStorage.setItem('monitoring:autoDemo', e.target.checked ? '1' : '0'); } catch {} }} />
                 Auto-start demo
               </label>
-              <button
-                className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50"
+              <Button
                 disabled={loading || status?.running !== false || status?.enabled === false}
                 onClick={async () => { setLoading(true); await startMonitoring().catch(()=>{}); const s=await getMonitoringStatus().catch(()=>null); setStatus(s); setLoading(false); }}
-              >Start</button>
-              <button
-                className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 disabled:opacity-50"
+              >Start</Button>
+              <Button
+                variant="destructive"
                 disabled={loading || !status?.running || status?.enabled === false}
                 onClick={async () => { setLoading(true); await stopMonitoring().catch(()=>{}); const s=await getMonitoringStatus().catch(()=>null); setStatus(s); setLoading(false); }}
-              >Stop</button>
-              <button
-                className="px-3 py-2 rounded-lg text-sm font-medium text-white bg-amber-600 hover:bg-amber-700"
+              >Stop</Button>
+              <Button
+                variant="secondary"
                 title="Loop images from uploads/*.jpg for demo"
                 onClick={async () => { setLoading(true); await startMonitoringDemo({ pattern: 'Backend/uploads/*.jpg', fps: 6, idle_sec: 5, away_sec: 5 }).catch(()=>{}); const s=await getMonitoringStatus().catch(()=>null); setStatus(s); setLoading(false); }}
-              >Start Demo</button>
-              <button
-                className="px-3 py-2 rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+              >Start Demo</Button>
+              <Button
+                variant="ghost"
                 onClick={async () => { setLoading(true); const s=await getMonitoringStatus().catch(()=>null); setStatus(s); setLoading(false); }}
-              >Refresh</button>
+              >Refresh</Button>
             </div>
           </div>
           <div className="mt-4 text-sm">
@@ -91,26 +95,29 @@ export default function MonitoringPage() {
               <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">Source: {String((status as any).config.video_source)} {status?.config?.demo_fps ? `@ ${status.config.demo_fps} fps` : ''}</div>
             )}
           </div>
-        </div>
+        </Card>
 
-        <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Alerts</h2>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Latest 50 alerts are shown here</p>
-          <div className="space-y-2 max-h-80 overflow-auto">
-            {status?.alerts?.length ? status.alerts.map((a, idx) => (
-              <div key={idx} className="p-3 rounded border border-gray-200 dark:border-slate-700 text-sm text-gray-800 dark:text-gray-100">
-                <div className="flex items-center justify-between">
-                  <div className="font-semibold">{a.state.toUpperCase()}</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">{a.employee_id || `Track #${a.track_id ?? '?'}`}</div>
+        <Card className="xl:col-span-12">
+          <CardTitle title="Recent Alerts" subtitle="Most recent 50 activity alerts generated by the monitoring engine." />
+          {loading && !status ? (
+            <LoadingState label="Loading monitoring alerts..." />
+          ) : !status?.alerts?.length ? (
+            <EmptyState title="No alerts yet" subtitle="Alerts will appear once the monitoring service detects events." />
+          ) : (
+            <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+              {status.alerts.map((a, idx) => (
+                <div key={idx} className="rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm text-gray-800 dark:border-slate-700 dark:bg-slate-800 dark:text-gray-100">
+                  <div className="flex items-center justify-between">
+                    <div className="font-semibold">{a.state.toUpperCase()}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{a.employee_id || `Track #${a.track_id ?? '?'}`}</div>
+                  </div>
+                  <div className="mt-1 text-xs text-gray-600 dark:text-gray-300">Duration: {Math.round(a.duration_sec)}s</div>
+                  {a.message && <div className="mt-1 text-xs text-gray-600 dark:text-gray-300">{a.message}</div>}
                 </div>
-                <div className="text-xs text-gray-600 dark:text-gray-300">Duration: {Math.round(a.duration_sec)}s</div>
-                {a.message && <div className="text-xs text-gray-600 dark:text-gray-300">{a.message}</div>}
-              </div>
-            )) : (
-              <div className="text-sm italic text-gray-500 dark:text-gray-400">No alerts yet</div>
-            )}
-          </div>
-        </div>
+              ))}
+            </div>
+          )}
+        </Card>
       </div>
     </div>
   );

@@ -14,8 +14,7 @@ import { Settings } from './pages/Settings';
 import { System } from './pages/System';
 import MonitoringPage from './pages/Monitoring';
 import ManagerPage from './pages/Manager';
-import { Header } from './components/Header';
-import { Sidebar } from './components/Sidebar';
+import { AppShell } from './components/AppShell';
 import { GlobalErrorBanner } from './components/GlobalErrorBanner';
 
 function AppContent() {
@@ -67,15 +66,9 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-slate-900 flex flex-col">
+    <div className="min-h-screen">
       <GlobalErrorBanner />
-      <Header />
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar currentPage={currentPage} onNavigate={setCurrentPage} />
-        <main className="flex-1 overflow-y-auto">
-          {renderPage()}
-        </main>
-      </div>
+      <AppShell currentPage={currentPage} onNavigate={setCurrentPage}>{renderPage()}</AppShell>
     </div>
   );
 }

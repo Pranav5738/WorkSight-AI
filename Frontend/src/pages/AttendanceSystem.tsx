@@ -9,6 +9,10 @@ import { isBackendConfigured } from '../lib/api/http';
 import { fetchTodayAttendance, markAttendanceBackend, deleteAttendanceRecord } from '../lib/api/attendance';
 import { identifyFace } from '../lib/api/recognition';
 import { logEvent } from '../lib/api/logs';
+import { PageHeader } from '../components/ui/PageHeader';
+import { Card, CardTitle } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { SegmentedControl } from '../components/ui/SegmentedControl';
 
 type AttendanceStatus = 'present' | 'absent' | 'late' | 'on_leave';
 
@@ -252,11 +256,22 @@ export function AttendanceSystem() {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">AI Attendance System</h1>
-          <p className="text-gray-600 dark:text-gray-400 flex items-center gap-2">
+    <div className="space-y-6">
+      <PageHeader
+        title="AI Attendance System"
+        description="Real-time face recognition and attendance operations for live shifts."
+        actions={
+          <Button
+            onClick={exportAttendance}
+            leadingIcon={<Download className="w-4 h-4" />}
+          >
+            Export
+          </Button>
+        }
+      />
+
+      <div>
+        <p className="text-gray-600 dark:text-gray-400 flex items-center gap-2 text-sm">
             Automated facial recognition attendance tracking
             {geminiEnabled ? (
               <span
@@ -274,23 +289,21 @@ export function AttendanceSystem() {
               </span>
             )}
           </p>
-        </div>
-        <button
-          onClick={exportAttendance}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-        >
-          <Download className="w-4 h-4" />
-          Export
-        </button>
       </div>
 
       {backendMode && backendError && (
-        <div className="p-3 border border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-600 rounded-lg text-amber-800 dark:text-amber-300 text-xs flex items-center justify-between gap-2">
+        <div className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs text-amber-800 dark:border-amber-600 dark:bg-amber-900/20 dark:text-amber-300">
+          <div className="flex items-center justify-between gap-2">
           <span>Backend API unreachable – operating in Supabase fallback mode.</span>
-          <button
+          <Button
             onClick={() => loadEmployees()}
-            className="px-2 py-1 rounded bg-amber-600/90 hover:bg-amber-600 text-white text-[11px]"
-          >Retry</button>
+            variant="secondary"
+            size="sm"
+            className="border-amber-400/60 bg-amber-100 text-amber-800 hover:bg-amber-200 dark:bg-amber-900/40 dark:text-amber-200"
+          >
+            Retry
+          </Button>
+          </div>
         </div>
       )}
 
@@ -354,9 +367,9 @@ export function AttendanceSystem() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-slate-700">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">AI Recognition Camera</h2>
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-12">
+        <Card className="xl:col-span-7">
+          <CardTitle title="AI Recognition Camera" subtitle="Live module with frame capture, diagnostics, and recognition feedback." />
           <CameraView
             className="aspect-video mb-4"
             onFrame={handleFrameCapture}
@@ -365,7 +378,7 @@ export function AttendanceSystem() {
             targetDeviceId={assignedRecognitionCam || undefined}
           />
 
-          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+          <div className="rounded-xl bg-blue-50 p-4 dark:bg-blue-900/20">
             <p className="text-sm text-blue-900 dark:text-blue-300 font-medium mb-2">AI Status:</p>
             <div className="flex items-center gap-2">
               <div className={`w-2 h-2 rounded-full ${scanning ? 'bg-yellow-500 animate-pulse' : 'bg-green-500'}`} />
@@ -380,7 +393,7 @@ export function AttendanceSystem() {
             )}
           </div>
 
-          <div className="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+          <div className="mt-4 rounded-xl bg-yellow-50 p-4 dark:bg-yellow-900/20">
             <p className="text-xs font-medium text-yellow-900 dark:text-yellow-300 mb-2">
               Recognition Setup:
             </p>
@@ -391,26 +404,21 @@ export function AttendanceSystem() {
               <li>Adjust threshold & interval below</li>
             </ol>
           </div>
-        </div>
+        </Card>
 
-        <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-slate-700">
+        <Card className="xl:col-span-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">Employee List</h2>
-            <div className="flex gap-2">
-              {['all', 'present', 'absent', 'late'].map((f) => (
-                <button
-                  key={f}
-                  onClick={() => setFilter(f as typeof filter)}
-                  className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
-                    filter === f
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
-                  }`}
-                >
-                  {f.charAt(0).toUpperCase() + f.slice(1)}
-                </button>
-              ))}
-            </div>
+            <SegmentedControl
+              items={[
+                { value: 'all', label: 'All' },
+                { value: 'present', label: 'Present' },
+                { value: 'absent', label: 'Absent' },
+                { value: 'late', label: 'Late' }
+              ]}
+              value={filter}
+              onChange={(value) => setFilter(value as typeof filter)}
+            />
           </div>
 
           <div className="space-y-3 max-h-[500px] overflow-y-auto">
@@ -438,13 +446,16 @@ export function AttendanceSystem() {
                     </p>
                   )}
                   {!employee.attendance && (
-                    <button
+                    <Button
                       onClick={() => markAttendance(employee, 'present')}
-                      className="mt-1 px-2 py-0.5 rounded bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-medium"
-                    >Mark</button>
+                      size="sm"
+                      className="mt-1 h-7 px-2 text-[10px]"
+                    >
+                      Mark
+                    </Button>
                   )}
                   {employee.attendance?.id && (
-                    <button
+                    <Button
                       onClick={async () => {
                         const prev = employees;
                         setEmployees(prev => prev.map(e => e.id === employee.id ? ({ ...e, attendance: undefined }) : e));
@@ -456,14 +467,18 @@ export function AttendanceSystem() {
                           setToast({ message: 'Attendance entry deleted', type: 'success' });
                         }
                       }}
-                      className="mt-1 px-2 py-0.5 rounded bg-red-600 hover:bg-red-700 text-white text-[10px] font-medium"
-                    >Delete</button>
+                      variant="destructive"
+                      size="sm"
+                      className="mt-1 h-7 px-2 text-[10px]"
+                    >
+                      Delete
+                    </Button>
                   )}
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </Card>
       </div>
 
       {toast && (
