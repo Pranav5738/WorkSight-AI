@@ -1,76 +1,170 @@
-# Cortexa Vision
+# 🧠 WorkSight AI – Employee Monitoring & Attendance Platform
 
-Cortexa Vision is a full-stack security and attendance platform built with a React frontend and a FastAPI backend. The app supports face-driven attendance, employee enrollment, system logs, and monitoring workflows. It can run in Supabase-first mode or talk to a local backend through `VITE_API_URL`.
+> 🚀 AI-powered workforce intelligence platform with face recognition, real-time monitoring, and productivity analytics.
 
-## Stack
+![GitHub stars](https://img.shields.io/github/stars/Pranav5738/WorkSight-AI?style=for-the-badge)
+![GitHub forks](https://img.shields.io/github/forks/Pranav5738/WorkSight-AI?style=for-the-badge)
+![GitHub license](https://img.shields.io/github/license/Pranav5738/WorkSight-AI?style=for-the-badge)
+![Issues](https://img.shields.io/github/issues/Pranav5738/WorkSight-AI?style=for-the-badge)
 
-- Frontend: React, TypeScript, Vite, Tailwind CSS
-- Backend: FastAPI, Uvicorn, SQLAlchemy, Alembic
-- Data: PostgreSQL / Supabase
-- Vision: OpenCV, ONNX Runtime, InsightFace, MediaPipe
+![React](https://img.shields.io/badge/Frontend-React-blue?style=for-the-badge&logo=react)
+![FastAPI](https://img.shields.io/badge/Backend-FastAPI-green?style=for-the-badge&logo=fastapi)
+![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-blue?style=for-the-badge&logo=postgresql)
+![Docker](https://img.shields.io/badge/Deployment-Docker-blue?style=for-the-badge&logo=docker)
+![OpenCV](https://img.shields.io/badge/AI-OpenCV-red?style=for-the-badge&logo=opencv)
 
-## Run
+---
 
-Install dependencies for both apps:
+## 🚀 Features
+
+- Face Recognition-based Attendance  
+- Real-time Employee Monitoring  
+- Admin & Manager Dashboard  
+- Productivity Analytics  
+- Secure Authentication (JWT)  
+- Supabase / PostgreSQL Support  
+- Docker-ready Deployment  
+
+---
+
+## 🧩 Problem It Solves
+
+Traditional systems typically focus on either attendance tracking or activity monitoring — not both.
+
+**WorkSight AI bridges this gap by combining:**
+
+- Identity-based attendance (Face Recognition)  
+- AI-driven monitoring insights  
+- Centralized workforce management  
+
+---
+
+## 🏗️ Tech Stack
+
+| Layer        | Technologies |
+|-------------|-------------|
+| **Frontend** | React.js, TypeScript, Vite, Tailwind CSS |
+| **Backend**  | FastAPI, SQLAlchemy |
+| **AI Layer** | OpenCV, ONNX Runtime |
+| **Database** | PostgreSQL / Supabase |
+| **Deployment** | Docker, Render, Vercel / Netlify |
+
+---
+
+## 📊 Core Modules
+
+- Dashboard  
+- Attendance System  
+- Employee Enrollment  
+- User Management  
+- Monitoring & Analytics  
+- System Logs  
+
+---
+
+## 📂 Core Models
+
+- **Employee** – User identity & profile  
+- **AttendanceRecord** – Daily attendance  
+- **Embedding** – Face recognition vectors  
+- **SystemLog** – Logs & diagnostics  
+- **ProductivityDaily** – Productivity metrics  
+
+---
+
+## 📊 System Architecture
+
+```mermaid
+flowchart LR
+
+A[User / Admin] --> B[Frontend - React + Vite]
+
+B --> C[Backend API - FastAPI]
+
+C --> D[Database - PostgreSQL / Supabase]
+
+C --> E[AI Engine]
+E --> F[Face Recognition - OpenCV]
+E --> G[Inference - ONNX Runtime]
+
+C --> H[Authentication - JWT]
+
+C --> I[Monitoring & Analytics Engine]
+
+I --> D
+
+style A fill:#f9f,stroke:#333,stroke-width:1px
+style B fill:#bbf,stroke:#333
+style C fill:#bfb,stroke:#333
+style D fill:#fbb,stroke:#333
+style E fill:#ffb,stroke:#333
+```
+
+---
+
+## 🧪 Local Setup
 
 ```bash
+# Clone repository
+git clone https://github.com/Pranav5738/WorkSight-AI.git
+
+# Navigate into project
+cd WorkSight-AI
+
+# Install frontend dependencies
 npm install
-```
 
-Start the full stack from the repo root:
-
-```bash
+# Run frontend
 npm run dev
+
+# Start backend server
+uvicorn main:app --reload
 ```
 
-Run only the frontend:
+---
 
-```bash
-npm run dev:frontend
-```
+## 🐳 Deployment
 
-Run only the backend:
+- **Backend:** Docker (Render)  
+- **Frontend:** Vercel / Netlify / Render  
+- **Database:** Supabase / PostgreSQL  
 
-```bash
-npm run dev:backend
-```
+---
 
-## Backend
+## 🛣️ Roadmap
 
-The backend entrypoint is [Backend/main.py](Backend/main.py), with shared configuration in [Backend/config.py](Backend/config.py) and database setup in [Backend/db.py](Backend/db.py). Optional vision dependencies are pinned in [Backend/requirements-vision.txt](Backend/requirements-vision.txt).
+- Role-Based Access Control (RBAC)  
+- Async AI processing  
+- Advanced analytics dashboard  
+- Multi-tenant architecture  
 
-Useful environment variables:
+---
 
-- `VITE_API_URL` enables backend-first mode in the frontend
-- `ENABLE_RATE_LIMIT=1` turns on SlowAPI rate limiting
-- `ENABLE_PROMETHEUS=1` exposes metrics when Prometheus is installed
-- `RECOGNITION_SIMULATION=1` keeps the fallback recognition path enabled
+## 🤝 Contributing
 
-## Supabase
+1. Fork the repository  
+2. Create a feature branch  
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+3. Commit changes  
+   ```bash
+   git commit -m "Add your message"
+   ```
+4. Push to GitHub  
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+5. Open a Pull Request 🚀  
 
-This project already includes a Supabase-ready schema in [Backend/supabase/migrations/20251002050955_create_security_attendance_schema.sql](Backend/supabase/migrations/20251002050955_create_security_attendance_schema.sql) and a frontend client in [Frontend/src/lib/supabase.ts](Frontend/src/lib/supabase.ts).
+---
 
-Use Supabase in one of two ways:
+## 📜 License
 
-1. Supabase as the database for the FastAPI backend.
-	Set `DATABASE_URL` to your Supabase Postgres connection string in Render or in your local backend env.
-2. Supabase as the direct frontend data source.
-	Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in [Frontend/.env.example](Frontend/.env.example).
+This project is licensed under the **MIT License**.
 
-Recommended production setup:
+---
 
-1. Apply the migration from [Backend/supabase/migrations/20251002050955_create_security_attendance_schema.sql](Backend/supabase/migrations/20251002050955_create_security_attendance_schema.sql) in your Supabase SQL editor.
-2. Deploy the backend with `DATABASE_URL` pointing at Supabase Postgres.
-3. Deploy the frontend with `VITE_API_URL` pointing at the backend URL.
-4. Add the frontend URL to `CORS_ORIGINS` in the backend environment.
+## 👨‍💻 Author
 
-## Project Layout
-
-- [Frontend/](Frontend/) contains the main web app
-- [Backend/](Backend/) contains the FastAPI service and vision pipeline
-- [scripts/dev.js](scripts/dev.js) launches the combined dev workflow
-
-## Notes
-
-- The repo now avoids the previous README merge-conflict clutter.
-- Root-level legacy files are being trimmed where they are not used by the active app.
+**Pranav Shah**
