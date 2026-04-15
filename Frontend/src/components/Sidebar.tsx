@@ -22,7 +22,7 @@ export function Sidebar({ currentPage, onNavigate }: SidebarProps) {
   return (
     <aside className="w-64 bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-700 h-full flex flex-col">
       <div className="px-4 pt-6 pb-4">
-        <h2 className="text-sm font-semibold tracking-wide text-blue-600 dark:text-blue-400">CONTEXA VISION</h2>
+        <h2 className="text-sm font-semibold tracking-wide text-blue-600 dark:text-blue-400">WorkSight AI</h2>
       </div>
       <nav className="flex-1 px-4 pb-6 space-y-2">
         {menuItems.map((item) => {

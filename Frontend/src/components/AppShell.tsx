@@ -102,8 +102,8 @@ function AppSidebar({
           </div>
           {!collapsed && (
             <div>
-              <p className="text-xs uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">Contexa</p>
-              <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Vision Suite</p>
+              <p className="text-xs uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">WorkSight</p>
+              <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">AI Suite</p>
             </div>
           )}
         </div>

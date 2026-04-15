@@ -62,7 +62,7 @@ export function Login() {
               Built for teams that cannot afford blind spots.
             </h2>
             <p className="mt-4 max-w-md text-sm leading-6 text-slate-200/85 xl:text-[15px]">
-              CONTEXA VISION secures access, tracks attendance in real time, and keeps operational visibility sharp across every site.
+              WorkSight AI secures access, tracks attendance in real time, and keeps operational visibility sharp across every site.
             </p>
 
             <div className="mt-8 space-y-3">
@@ -97,7 +97,7 @@ export function Login() {
               <Sparkles className="h-3.5 w-3.5" />
               Trusted AI Access
             </div>
-            <h1 className="mt-4 text-3xl font-bold tracking-tight text-white sm:text-[2.05rem]">CONTEXA VISION</h1>
+            <h1 className="mt-4 text-3xl font-bold tracking-tight text-white sm:text-[2.05rem]">WorkSight AI</h1>
             <p className="mt-2 max-w-sm text-sm text-slate-200/85">Security & Attendance Management</p>
           </div>
 
