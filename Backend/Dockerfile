@@ -6,6 +6,7 @@ WORKDIR /app
 # System deps for psycopg2/opencv minimal (libmagic etc if needed later)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    libglib2.0-0 \
     libgl1 \
     curl \
     && rm -rf /var/lib/apt/lists/*
