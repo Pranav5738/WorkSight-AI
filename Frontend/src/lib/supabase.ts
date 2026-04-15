@@ -3,9 +3,9 @@ import type { Database } from '../types/database';
 
 // Gracefully handle missing env vars so local dev without Supabase still works.
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+const supabaseKey = (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY) as string | undefined;
 
-export const supabaseAvailable = !!supabaseUrl && !!supabaseAnonKey;
+export const supabaseAvailable = !!supabaseUrl && !!supabaseKey;
 
 function buildStub() {
   // Lightweight in-memory mock data for dev preview
@@ -49,8 +49,8 @@ function buildStub() {
   } as any;
 }
 
-export const supabase = (supabaseAvailable && supabaseUrl && supabaseAnonKey)
-  ? createClient<Database>(supabaseUrl, supabaseAnonKey)
+export const supabase = (supabaseAvailable && supabaseUrl && supabaseKey)
+  ? createClient<Database>(supabaseUrl, supabaseKey)
   : buildStub();
 
 if (!supabaseAvailable && import.meta.env.DEV) {

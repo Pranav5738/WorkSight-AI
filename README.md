@@ -46,6 +46,24 @@ Useful environment variables:
 - `ENABLE_PROMETHEUS=1` exposes metrics when Prometheus is installed
 - `RECOGNITION_SIMULATION=1` keeps the fallback recognition path enabled
 
+## Supabase
+
+This project already includes a Supabase-ready schema in [Backend/supabase/migrations/20251002050955_create_security_attendance_schema.sql](Backend/supabase/migrations/20251002050955_create_security_attendance_schema.sql) and a frontend client in [Frontend/src/lib/supabase.ts](Frontend/src/lib/supabase.ts).
+
+Use Supabase in one of two ways:
+
+1. Supabase as the database for the FastAPI backend.
+	Set `DATABASE_URL` to your Supabase Postgres connection string in Render or in your local backend env.
+2. Supabase as the direct frontend data source.
+	Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in [Frontend/.env.example](Frontend/.env.example).
+
+Recommended production setup:
+
+1. Apply the migration from [Backend/supabase/migrations/20251002050955_create_security_attendance_schema.sql](Backend/supabase/migrations/20251002050955_create_security_attendance_schema.sql) in your Supabase SQL editor.
+2. Deploy the backend with `DATABASE_URL` pointing at Supabase Postgres.
+3. Deploy the frontend with `VITE_API_URL` pointing at the backend URL.
+4. Add the frontend URL to `CORS_ORIGINS` in the backend environment.
+
 ## Project Layout
 
 - [Frontend/](Frontend/) contains the main web app

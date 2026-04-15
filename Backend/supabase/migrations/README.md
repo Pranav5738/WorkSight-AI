@@ -1,11 +1,12 @@
-This folder previously contained a combined security + attendance schema migration that included an `intruder_detections` table.
+This folder contains the current Supabase schema migration for the app.
 
-As of 2025-10-08, the intruder module has been removed from the codebase. The migration file was deleted to avoid confusion.
+Use [20251002050955_create_security_attendance_schema.sql](20251002050955_create_security_attendance_schema.sql) to create the current attendance and security tables in Supabase.
 
-If you need a fresh schema for attendance-only, create a new migration with just:
-- profiles
-- employees
-- attendance_records
-- system_logs
+The migration defines:
 
-You can generate a new migration using your preferred tool or Supabase CLI.
+- `profiles`
+- `employees`
+- `attendance_records`
+- `system_logs`
+
+Apply it from the Supabase SQL editor or via the Supabase CLI before pointing the backend at the database.
